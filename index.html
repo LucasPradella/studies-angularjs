@@ -1,0 +1,100 @@
+<html ng-app="biblioteca">
+<head>
+	<meta charset="UTF-8">
+	<title>Biblioteca</title>
+	<link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.css">
+	<style>
+		.jumbotron {
+			width: 400px;
+			text-align: center;
+			margin-top: 10px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		h3 {margin-bottom: 30px;}
+		.table {margin-top: 20px;}
+		.form-control {margin-bottom: 5px;}
+		.selecionado {background-color: #E00000;}
+		.negrito {font-weight: bold;}
+	</style>
+	<script src="lib/angular/angular.js"></script>
+	<script src="lib/angular/angular-messages.js"></script>
+	<script>
+		angular.module("biblioteca", ["ngMessages"]);
+		angular.module("biblioteca").controller("bibliotecaCtrl", function ($scope) {
+			$scope.app = "BIBLIOTECA";
+			$scope.livros = [
+				{nomeLivro: "Cronicas de Gelo e Fogo", issn: "123456"},
+				{nomeLivro: "Cronicas de Artur", issn: "98098"},
+				{nomeLivro: "A Arte da Guerra", issn: "67890"}
+			];
+			$scope.editoras = [
+				{nome: "PENSAMENTO", posicao: 1},
+				{nome: "Record", posicao: 2},
+				{nome: "LeYa", posicao: 3},
+			];
+			$scope.adicionarLivro = function (livro) {
+				$scope.livros.push(angular.copy(livro));
+				delete $scope.livro;
+				$scope.livroForm.$setPristine();
+			};
+			$scope.apagarLivros = function (livros) {
+				$scope.livros = livros.filter(function (livro) {
+					if (!livro.selecionado) return livro;
+				});
+			};
+			$scope.isLivroSelecionado = function (livros) {
+				return livros.some(function (livro) {
+					return livro.selecionado;
+				});
+			};
+		});
+	</script>
+</head>
+<body ng-controller="bibliotecaCtrl">
+	<div class="jumbotron">
+		<h3>{{app}}</h3>
+		<table ng-show="livros.length > 0" class="table">
+			<tr>
+				<th></th>
+				<th>Nome</th>
+				<th>ISSN</th>
+				<th>Editora</th>
+				<th></th>
+			</tr>
+			<tr ng-class="{'selecionado negrito': livro.selecionado}" ng-repeat="livro in livros">
+				<td><input type="checkbox" ng-model="livro.selecionado"/></td>
+				<td>{{livro.nomeLivro}}</td>
+				<td>{{livro.issn}}</td>
+				<td>{{livro.editora.nome}}</td>
+			</tr>
+		</table>
+		<hr/>
+		<form name="livroForm">
+			<input class="form-control" type="text" ng-model="livro.nomeLivro" name="nomeLivro" placeholder="nome" ng-required="true" ng-minlength="10"/>
+			<input class="form-control" type="text" ng-model="livro.issn" name="issn" placeholder="Issn" ng-required="true"/>
+			<select class="form-control" ng-model="livro.editora" ng-options="editora.nome for editora in editoras">
+				<option value="">Selecione uma Editora</option>
+			</select>
+		</form>
+
+		<div ng-messages="livroForm.nomeLivro.$error" class="alert alert-danger">
+			<div ng-message="required">
+				Por favor, preencha o campo nome!
+			</div>
+			<div ng-message="minlength">
+				O campo nome deve ter no mínimo 10 caracteres.
+			</div>
+		</div>
+
+		<div ng-show="livroForm.livro.$error.required" class="alert alert-danger">
+			Por favor, preencha o campo ISSN!
+		</div>
+
+		<button class="btn btn-primary btn-block" ng-click="adicionarLivro(livro)" ng-disabled="livroForm.$invalid">Adicionar Livro</button>
+		<button class="btn btn-danger btn-block" ng-click="apagarLivros(livros)" ng-if="isLivroSelecionado(livros)">Apagar Livros</button>
+	
+	</div>
+		<div style = 'text-align: center;'> Todos o direitos reservados </div>
+</body>
+</html>
